@@ -186,9 +186,6 @@ void HAL_QSPI_MspDeInit(QSPI_HandleTypeDef* qspiHandle)
 uint8_t
 CSP_QUADSPI_Init(void) {
     //prepare QSPI peripheral for ST-Link Utility operations
-    if (HAL_QSPI_DeInit(&hqspi) != HAL_OK) {
-        return HAL_ERROR;
-    }
     MX_QUADSPI_Init();
     if (QSPI_ResetChip() != HAL_OK) {
         return HAL_ERROR;
