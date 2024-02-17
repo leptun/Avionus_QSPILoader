@@ -190,7 +190,6 @@ CSP_QUADSPI_Init(void) {
     if (QSPI_ResetChip() != HAL_OK) {
         return HAL_ERROR;
     }
-    HAL_Delay(10);
     if (QSPI_CheckID() != HAL_OK) {
 		return HAL_ERROR;
 	}
@@ -886,6 +885,7 @@ QSPI_ResetChip(void) {
 		}
 	}
 
+	HAL_Delay(1); //100uS needed
     return HAL_OK;
 }
 
