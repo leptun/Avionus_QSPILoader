@@ -9,7 +9,7 @@
 #if defined (__ICCARM__)
 __root struct StorageInfo const StorageInfo  =  {
 #else
-struct StorageInfo const StorageInfo = {
+struct StorageInfo const StorageInfo __attribute__((section(".root"))) = {
 #endif
     "IS25LP064A-dualQSPI_Avionus-rev1.0",// Device Name + version number
     NOR_FLASH,                           // Device Type

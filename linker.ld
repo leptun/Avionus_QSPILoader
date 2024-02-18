@@ -18,8 +18,6 @@ ENTRY(Init)
 /* Generate 2 segment for Loader code and device info */
 PHDRS {Loader PT_LOAD ; SgInfo PT_LOAD ; }
 
-/* Highest address of the user mode stack */
-_estack = ORIGIN(RAM) + LENGTH(RAM);    /* end of RAM */
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size = 0x200;      /* required amount of heap  */
 _Min_Stack_Size = 0x400; /* required amount of stack */
@@ -27,23 +25,18 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 /* Specify the memory areas */
 MEMORY
 {
-RAM (xrw)      : ORIGIN = 0x20000004, LENGTH = 256K-4
+RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 256K
 }
 
 /* Define output sections */
 SECTIONS
 {
-  /* The startup code goes first into FLASH */
-  
   .isr_vector :
   {
-  	. = . + 0x1FC;
-    . = ALIGN(4);
+    . = ALIGN(0x200);
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
   } >RAM :Loader
-  
-  
 
   .ARM.extab   : { *(.ARM.extab* .gnu.linkonce.armextab.*) } >RAM
   .ARM : {
@@ -93,7 +86,7 @@ SECTIONS
   
   /* Uninitialized data section */
   . = ALIGN(4);
-  .bss :
+  .bss (NOLOAD) :
   {
     /* This is used by the startup in order to initialize the .bss secion */
     _sbss = .;         /* define a global symbol at bss start */
@@ -106,11 +99,17 @@ SECTIONS
     _ebss = .;         /* define a global symbol at bss end */
     __bss_end__ = _ebss;
   } >RAM :Loader
+  
+  .Dev_info :
+  {
+	KEEP(*Dev_Inf.o ( .root ))
+  } >RAM :SgInfo
 
   /* The program code and other data goes into FLASH */
   .text :
   {
     . = ALIGN(4);
+    KEEP (./Core/Src/Loader_Src.o(.text*))
     *(.text)           /* .text sections (code) */
     *(.text*)          /* .text* sections (code) */
     *(.glue_7)         /* glue arm to thumb code */
@@ -119,40 +118,35 @@ SECTIONS
 
     KEEP (*(.init))
     KEEP (*(.fini))
+    
+    . = ALIGN(4);
+    *(.rodata)         /* .rodata sections (constants, strings, etc.) */
+    *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
+    . = ALIGN(4);
 
     . = ALIGN(4);
     _etext = .;        /* define a global symbols at end of code */
   } >RAM :Loader
   
-    .Dev_info :
-  {
-	KEEP(*Dev_Inf.o ( .rodata* ))
-  } :SgInfo
-  
-  
-  /* Constant data goes into FLASH */
-  .rodata :
-  {
-    . = ALIGN(4);
-    *(.rodata)         /* .rodata sections (constants, strings, etc.) */
-    *(.rodata*)        /* .rodata* sections (constants, strings, etc.) */
-    . = ALIGN(4);
-  } >RAM :Loader
-  
-  
   /* User_heap_stack section, used to check that there is enough RAM left */
-  ._user_heap_stack :
+  ._user_heap_stack (NOLOAD) :
   {
-    . = ALIGN(4);
+    . = ALIGN(8);
     PROVIDE ( end = . );
     PROVIDE ( _end = . );
     . = . + _Min_Heap_Size;
     . = . + _Min_Stack_Size;
-    . = ALIGN(4);
+    . = ALIGN(8);
+    _estack = .;
   } >RAM :Loader
 
-  
-
+  /* Remove information from the compiler libraries */
+  /DISCARD/ :
+  {
+    libc.a ( * )
+    libm.a ( * )
+    libgcc.a ( * )
+  }
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
 }

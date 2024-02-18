@@ -223,7 +223,7 @@ CSP_QSPI_Erase_Chip(void) {
 		.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY,
 		.SIOOMode = QSPI_SIOO_INST_EVERY_CMD
 	};
-	if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+	if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 		return HAL_ERROR;
 	}
 	if (QSPI_AutoPollingMemReadyQPI(50000) != HAL_OK) {
@@ -260,7 +260,7 @@ CSP_QSPI_EraseSector(uint32_t EraseStartAddress, uint32_t EraseEndAddress) {
         if (QSPI_WriteEnableQPI() != HAL_OK) {
             return HAL_ERROR;
         }
-        if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+        if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
             return HAL_ERROR;
         }
         EraseStartAddress += MEMORY_SECTOR_SIZE;
@@ -306,10 +306,10 @@ CSP_QSPI_WriteMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size) {
 		if (QSPI_WriteEnableQPI() != HAL_OK) {
 			return HAL_ERROR;
 		}
-        if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+        if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
             return HAL_ERROR;
         }
-        if (HAL_QSPI_Transmit(&hqspi, buffer, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+        if (HAL_QSPI_Transmit(&hqspi, buffer, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
             return HAL_ERROR;
         }
         if (QSPI_AutoPollingMemReadyQPI(5) != HAL_OK) {
@@ -363,10 +363,10 @@ CSP_QSPI_ReadMemory(uint8_t* buffer, uint32_t address, uint32_t buffer_size) {
 //		.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY,
 //		.SIOOMode = QSPI_SIOO_INST_EVERY_CMD
 //	};
-	if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+	if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 		return HAL_ERROR;
 	}
-	if (HAL_QSPI_Receive(&hqspi, buffer, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+	if (HAL_QSPI_Receive(&hqspi, buffer, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 		return HAL_ERROR;
 	}
 
@@ -518,7 +518,7 @@ QSPI_WriteEnable(void) {
 			.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY,
 			.SIOOMode = QSPI_SIOO_INST_EVERY_CMD
 		};
-		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 			return HAL_ERROR;
 		}
 	}
@@ -546,7 +546,7 @@ QSPI_WriteEnableQPI(void) {
 			.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY,
 			.SIOOMode = QSPI_SIOO_INST_EVERY_CMD
 		};
-		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 			return HAL_ERROR;
 		}
 	}
@@ -575,10 +575,10 @@ QSPI_CheckID(void) {
 		.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY,
 		.SIOOMode = QSPI_SIOO_INST_EVERY_CMD
 	};
-	if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+	if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 		return HAL_ERROR;
 	}
-	if (HAL_QSPI_Receive(&hqspi, jedec_ids, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+	if (HAL_QSPI_Receive(&hqspi, jedec_ids, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 		return HAL_ERROR;
 	}
 	if (memcmp(jedec_ids, expected_jedec_ids, sizeof(jedec_ids))) {
@@ -609,10 +609,10 @@ QSPI_Configuration(void) {
 			.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY,
 			.SIOOMode = QSPI_SIOO_INST_EVERY_CMD
 		};
-		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 			return HAL_ERROR;
 		}
-		if (HAL_QSPI_Receive(&hqspi, status_registers, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+		if (HAL_QSPI_Receive(&hqspi, status_registers, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 			return HAL_ERROR;
 		}
 
@@ -640,10 +640,10 @@ QSPI_Configuration(void) {
 					.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY,
 					.SIOOMode = QSPI_SIOO_INST_EVERY_CMD
 				};
-				if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+				if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 					return HAL_ERROR;
 				}
-				if (HAL_QSPI_Transmit(&hqspi, status_registers, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+				if (HAL_QSPI_Transmit(&hqspi, status_registers, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 					return HAL_ERROR;
 				}
 		        if (QSPI_AutoPollingMemReady(20) != HAL_OK) {
@@ -675,10 +675,10 @@ QSPI_Configuration(void) {
 			.DdrHoldHalfCycle = QSPI_DDR_HHC_ANALOG_DELAY,
 			.SIOOMode = QSPI_SIOO_INST_EVERY_CMD
 		};
-		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 			return HAL_ERROR;
 		}
-		if (HAL_QSPI_Transmit(&hqspi, read_parameters_registers, HAL_QPSI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
+		if (HAL_QSPI_Transmit(&hqspi, read_parameters_registers, HAL_QSPI_TIMEOUT_DEFAULT_VALUE) != HAL_OK) {
 			return HAL_ERROR;
 		}
 	}
@@ -706,7 +706,7 @@ QSPI_ExitAX(void) {
 			.SIOOMode = QSPI_SIOO_INST_EVERY_CMD
 		};
 
-		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)
+		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE)
 			!= HAL_OK) {
 			return HAL_ERROR;
 		}
@@ -731,7 +731,7 @@ QSPI_ExitAX(void) {
 			.SIOOMode = QSPI_SIOO_INST_EVERY_CMD
 		};
 
-		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)
+		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE)
 			!= HAL_OK) {
 			return HAL_ERROR;
 		}
@@ -756,7 +756,7 @@ QSPI_ExitAX(void) {
 			.SIOOMode = QSPI_SIOO_INST_EVERY_CMD
 		};
 
-		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)
+		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE)
 			!= HAL_OK) {
 			return HAL_ERROR;
 		}
@@ -786,7 +786,7 @@ QSPI_EnterQPI(void) {
 			.SIOOMode = QSPI_SIOO_INST_EVERY_CMD
 		};
 
-		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)
+		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE)
 			!= HAL_OK) {
 			return HAL_ERROR;
 		}
@@ -816,7 +816,7 @@ QSPI_ExitQPI(void) {
 			.SIOOMode = QSPI_SIOO_INST_EVERY_CMD
 		};
 
-		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)
+		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE)
 			!= HAL_OK) {
 			return HAL_ERROR;
 		}
@@ -854,7 +854,7 @@ QSPI_ResetChip(void) {
 			.SIOOMode = QSPI_SIOO_INST_EVERY_CMD
 		};
 
-		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)
+		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE)
 			!= HAL_OK) {
 			return HAL_ERROR;
 		}
@@ -879,7 +879,7 @@ QSPI_ResetChip(void) {
 			.SIOOMode = QSPI_SIOO_INST_EVERY_CMD
 		};
 
-		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QPSI_TIMEOUT_DEFAULT_VALUE)
+		if (HAL_QSPI_Command(&hqspi, &sCommand, HAL_QSPI_TIMEOUT_DEFAULT_VALUE)
 			!= HAL_OK) {
 			return HAL_ERROR;
 		}

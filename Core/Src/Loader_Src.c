@@ -1,9 +1,25 @@
 #include "quadspi.h"
 #include "main.h"
 #include "gpio.h"
+#include "tim.h"
 
 #define LOADER_OK   0x1
 #define LOADER_FAIL 0x0
+
+HAL_StatusTypeDef HAL_InitTick(uint32_t TickPriority) {
+	LL_RCC_SetTIMPrescaler(LL_RCC_TIM_PRESCALER_FOUR_TIMES); // Make all timers run at HCLK
+	MX_TIM2_Init();
+	LL_TIM_SetPrescaler(TIM2, __LL_TIM_CALC_PSC(SystemCoreClock, 8000ul));
+	LL_TIM_GenerateEvent_UPDATE(TIM2);
+	LL_TIM_EnableCounter(TIM2);
+
+	return HAL_OK;
+}
+uint32_t HAL_GetTick(void) {
+	return LL_TIM_GetCounter(TIM2) / 8;
+}
+void HAL_SuspendTick(void) { }
+void HAL_ResumeTick(void) { }
 
 /**
  * @brief  System initialization.
@@ -11,9 +27,14 @@
  * @retval  LOADER_OK = 1   : Operation succeeded
  * @retval  LOADER_FAIL = 0 : Operation failed
  */
-int
+int __attribute__((used))
 Init(void) {
-    *(uint32_t*)0xE000EDF0 = 0xA05F0000; //enable interrupts in debug
+	extern uint32_t _sbss[];
+	extern uint32_t _ebss[];
+	for (uint32_t *ptr = _sbss; ptr < _ebss; ptr++) {
+		*ptr = 0;
+	}
+	uint32_t res;
 
     SystemInit();
 
@@ -27,10 +48,20 @@ Init(void) {
      *
      * */
 
-    SCB->VTOR = 0x20000000 | 0x200;
+    extern uint32_t g_pfnVectors[];
+    SCB->VTOR = (uint32_t)g_pfnVectors;
 
     HAL_Init();
 
+    // reset clocks
+    SET_BIT(RCC->CR, RCC_CR_HSION); /* Set HSION bit to the reset value */
+    while (READ_BIT(RCC->CR, RCC_CR_HSIRDY) == RESET) { } /* Wait till HSI is ready */
+    CLEAR_REG(RCC->CFGR); /* Reset CFGR register */
+    while (READ_BIT(RCC->CFGR, RCC_CFGR_SWS) != RESET) { } /* Wait till clock switch is ready */
+    CLEAR_BIT(RCC->CR, RCC_CR_PLLON); /* Clear PLLON bit */
+    while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) != RESET) { } /* Wait till PLL is disabled */
+
+    // configure clocks
     extern void SystemClock_Config(void);
     SystemClock_Config();
 
@@ -39,15 +70,14 @@ Init(void) {
     __HAL_RCC_QSPI_FORCE_RESET();  //completely reset peripheral
     __HAL_RCC_QSPI_RELEASE_RESET();
 
-    if (CSP_QUADSPI_Init() != HAL_OK) {
-        HAL_SuspendTick();
-        return LOADER_FAIL;
+    if ((res = CSP_QUADSPI_Init())) {
+        return res + 100;
     }
-    if (CSP_QSPI_EnableMemoryMappedMode() != HAL_OK) {
-        HAL_SuspendTick();
-        return LOADER_FAIL;
+
+    if ((res = CSP_QSPI_EnableMemoryMappedMode())) {
+        return res + 200;
     }
-    HAL_SuspendTick();
+
     return LOADER_OK;
 }
 
@@ -59,29 +89,20 @@ Init(void) {
  * @retval  LOADER_OK = 1       : Operation succeeded
  * @retval  LOADER_FAIL = 0 : Operation failed
  */
-int
+int __attribute__((used))
 Write(uint32_t Address, uint32_t Size, uint8_t* buffer) {
-
-    HAL_ResumeTick();
-
-
     if (CSP_QSPI_DisableMemoryMappedMode() != HAL_OK) {
-        HAL_SuspendTick();
         return LOADER_FAIL;
     }
 
-
     if (CSP_QSPI_WriteMemory((uint8_t*) buffer, (Address & (0x0fffffff)), Size) != HAL_OK) {
-        HAL_SuspendTick();
         return LOADER_FAIL;
     }
 
     if (CSP_QSPI_EnableMemoryMappedMode() != HAL_OK) {
-        HAL_SuspendTick();
         return LOADER_FAIL;
     }
 
-    HAL_SuspendTick();
     return LOADER_OK;
 }
 
@@ -92,28 +113,20 @@ Write(uint32_t Address, uint32_t Size, uint8_t* buffer) {
  * @retval  LOADER_OK = 1       : Operation succeeded
  * @retval  LOADER_FAIL = 0 : Operation failed
  */
-int
+int __attribute__((used))
 SectorErase(uint32_t EraseStartAddress, uint32_t EraseEndAddress) {
-
-    HAL_ResumeTick();
-
     if (CSP_QSPI_DisableMemoryMappedMode() != HAL_OK) {
-        HAL_SuspendTick();
         return LOADER_FAIL;
     }
 
-
     if (CSP_QSPI_EraseSector(EraseStartAddress, EraseEndAddress) != HAL_OK) {
-        HAL_SuspendTick();
         return LOADER_FAIL;
     }
 
     if (CSP_QSPI_EnableMemoryMappedMode() != HAL_OK) {
-        HAL_SuspendTick();
         return LOADER_FAIL;
     }
 
-    HAL_SuspendTick();
     return LOADER_OK;
 }
 
@@ -127,29 +140,20 @@ SectorErase(uint32_t EraseStartAddress, uint32_t EraseEndAddress) {
  *     none
  * Note: Optional for all types of device
  */
-int
+int __attribute__((used))
 MassErase(void) {
-
-    HAL_ResumeTick();
-
-
     if (CSP_QSPI_DisableMemoryMappedMode() != HAL_OK) {
-        HAL_SuspendTick();
         return LOADER_FAIL;
     }
 
-
     if (CSP_QSPI_Erase_Chip() != HAL_OK) {
-        HAL_SuspendTick();
         return LOADER_FAIL;
     }
 
     if (CSP_QSPI_EnableMemoryMappedMode() != HAL_OK) {
-        HAL_SuspendTick();
         return LOADER_FAIL;
     }
 
-    HAL_SuspendTick();
     return LOADER_OK;
 }
 
@@ -164,7 +168,7 @@ MassErase(void) {
  *     R0             : Checksum value
  * Note: Optional for all types of device
  */
-uint32_t
+uint32_t __attribute__((used))
 CheckSum(uint32_t StartAddress, uint32_t Size, uint32_t InitVal) {
     uint8_t missalignementAddress = StartAddress % 4;
     uint8_t missalignementSize = Size;
@@ -238,10 +242,8 @@ CheckSum(uint32_t StartAddress, uint32_t Size, uint32_t InitVal) {
  *     R1             : Checksum value
  * Note: Optional for all types of device
  */
-uint64_t
+uint64_t __attribute__((used))
 Verify(uint32_t MemoryAddr, uint32_t RAMBufferAddr, uint32_t Size, uint32_t missalignement) {
-
-    HAL_ResumeTick();
     uint32_t VerifiedData = 0, InitVal = 0;
     uint64_t checksum;
     Size *= 4;
@@ -251,12 +253,10 @@ Verify(uint32_t MemoryAddr, uint32_t RAMBufferAddr, uint32_t Size, uint32_t miss
     while (Size > VerifiedData) {
         if (*(uint8_t*) MemoryAddr++
             != *((uint8_t*) RAMBufferAddr + VerifiedData)) {
-            HAL_SuspendTick();
             return ((checksum << 32) + (MemoryAddr + VerifiedData));
         }
         VerifiedData++;
     }
 
-    HAL_SuspendTick();
     return (checksum << 32);
 }
