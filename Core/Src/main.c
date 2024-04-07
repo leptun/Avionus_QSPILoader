@@ -67,6 +67,7 @@ static uint8_t buffer_read[MEMORY_SECTOR_SIZE];
   */
 int main(void)
 {
+
   /* USER CODE BEGIN 1 */
   uint32_t var = 0;
   /* USER CODE END 1 */
@@ -195,6 +196,9 @@ void SystemClock_Config(void)
   {
     Error_Handler();
   }
+
+   /* Set Timers Clock Prescalers */
+  LL_RCC_SetTIMPrescaler(LL_RCC_TIM_PRESCALER_TWICE);
 }
 
 /* USER CODE BEGIN 4 */
