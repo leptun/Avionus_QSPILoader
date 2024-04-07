@@ -198,7 +198,7 @@ void SystemClock_Config(void)
   }
 
    /* Set Timers Clock Prescalers */
-  LL_RCC_SetTIMPrescaler(LL_RCC_TIM_PRESCALER_TWICE);
+  LL_RCC_SetTIMPrescaler(LL_RCC_TIM_PRESCALER_FOUR_TIMES);
 }
 
 /* USER CODE BEGIN 4 */
